@@ -1,0 +1,31 @@
+UsersTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: UsersTable
+    ProvisionedThroughput:
+      ReadCapacityUnits: 1
+      WriteCapacityUnits: 1
+    KeySchema:
+      - AttributeName: userId
+        KeyType: HASH
+    AttributeDefinitions:
+      - AttributeName: userId
+        AttributeType: S
+      - AttributeName: email
+        AttributeType: S
+    GlobalSecondaryIndexes:
+      - IndexName: "UserByEmail"
+        KeySchema:
+          - AttributeName: "email"
+            KeyType: "HASH"
+          - AttributeName: "userId"
+            KeyType: "RANGE"
+        Projection:
+          ProjectionType: "ALL"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+UsersSNS:
+  Type: AWS::SNS::Topic
+  Properties:
+    TopicName: UsersTopic

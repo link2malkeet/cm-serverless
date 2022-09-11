@@ -1,0 +1,23 @@
+service: cover-more-test
+
+custom:
+  accountId: 351067981193
+  usersSNSTopicName: UsersTopic
+  usersSNSTopicARN: arn:aws:sns:ap-southeast-2:${self:custom.accountId}:${self:custom.usersSNSTopicName}
+  usersTable: UsersTable
+  usersTableARN: arn:aws:dynamodb:ap-southeast-2:${self:custom.accountId}:table/${self:custom.usersTable}
+provider:
+  name: aws
+  runtime: nodejs14.x
+  lambdaHashingVersion: 20201221
+  region: ap-southeast-2
+  profile: link2malkeet
+
+functions: ${file(./serverless/functions.yml)}
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-iam-roles-per-function
+
+resources:
+  Resources: ${file(./serverless/resources.yml)}

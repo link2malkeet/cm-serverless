@@ -1,0 +1,49 @@
+userCreationRequested:
+  name: userCreationRequested
+  description: triggers when user creation is requested from api
+  handler: src/handlers/userCreationRequested.handler
+  events:
+    - httpApi:
+        path: /user
+        method: post
+  iamRoleStatementsName: ${self:service}-UCR-role
+  iamRoleStatements:
+    - Effect: Allow
+      Action: sns:Publish
+      Resource: ${self:custom.usersSNSTopicARN}
+  environment:
+    USER_TOPIC_ARN: ${self:custom.usersSNSTopicARN}
+
+userCreationEventHandler:
+  name: "userCreationEventHandler"
+  description: triggers when there is an event in UsersTopic SNS
+  handler: src/handlers/userCreationEventHandler.handler
+  events:
+    - sns:
+        arn: !Ref UsersSNS
+        topicName: UsersTopic
+  iamRoleStatementsName: ${self:service}-UCE-role
+  iamRoleStatements:
+    - Effect: Allow
+      Action: dynamodb:PutItem
+      Resource: ${self:custom.usersTableARN}
+  environment:
+    USERS_TABLE: ${self:custom.usersTable}
+
+userByEmailRequested:
+  name: "userByEmailRequested"
+  description: triggers when user by email is requested from api
+  handler: src/handlers/userByEmailRequested.handler
+  events:
+    - httpApi:
+        path: /user/{email}
+        method: get
+  iamRoleStatementsName: ${self:service}-UBE-role
+  iamRoleStatements:
+    - Effect: Allow
+      Action: dynamodb:Query
+      Resource:
+        - ${self:custom.usersTableARN}
+        - ${self:custom.usersTableARN}/index/UserByEmail
+  environment:
+    USERS_TABLE: ${self:custom.usersTable}
